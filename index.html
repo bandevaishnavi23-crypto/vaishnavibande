@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ShopEasy - Online Shopping</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{--navy:#172b55;--pink:#ed2870;--bg:#f5f7fb;--border:#dce5ef}
+body{font-family:Arial,Helvetica,sans-serif;background:var(--bg);color:var(--navy)}
+button,input{font:inherit}button{cursor:pointer}
+header{background:var(--navy);color:#fff;padding:15px 4%;display:flex;align-items:center;justify-content:space-between;gap:20px;flex-wrap:wrap}
+.logo{font-size:29px;font-weight:800}.logo span{color:var(--pink)}
+nav{display:flex;gap:22px}nav a{color:#fff;text-decoration:none;font-weight:bold}nav a:hover{color:#ff5a93}
+.search{display:flex;background:#fff;border-radius:25px;overflow:hidden;flex:1;max-width:370px}
+.search input{border:0;outline:0;padding:12px 16px;width:100%;min-width:0}
+.search button{border:0;background:#fff;padding:0 15px}
+.cart-btn{border:0;background:none;color:white;font-size:17px}
+.hero{margin:20px;border-radius:12px;padding:40px 8%;min-height:270px;display:flex;align-items:center;justify-content:space-between;background:linear-gradient(110deg,#ffe8ef,#ffd0df)}
+.hero h1{font-size:clamp(30px,4vw,46px);line-height:1.15;margin:12px 0}
+.hero p{line-height:1.5;margin-bottom:18px}.hero-art{font-size:130px}
+.btn,.add{background:var(--pink);color:white;border:0;border-radius:6px;padding:11px 20px;font-weight:bold}
+.btn{border-radius:25px}.btn:hover,.add:hover{background:#c91b5a}
+.layout{display:grid;grid-template-columns:210px 1fr;gap:20px;margin:20px}
+.sidebar,.product{background:#fff;border:1px solid var(--border);border-radius:9px;padding:14px}
+.sidebar h3{margin-bottom:12px}
+.category{display:block;width:100%;text-align:left;padding:12px;border:0;border-radius:6px;background:#fff;color:var(--navy)}
+.category:hover,.category.active{background:#fde8f0;color:var(--pink)}
+h2{margin:0 0 15px}.products{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px}
+.product{display:flex;flex-direction:column;min-width:0}
+.product img{width:100%;height:145px;object-fit:contain;background:#f7f8fa;border-radius:6px}
+.product h3{font-size:16px;margin:10px 0 6px}.price{font-size:18px;font-weight:bold;margin-bottom:8px}
+.rating{font-size:13px;color:#f59e0b;margin-bottom:10px}.add{margin-top:auto;width:100%;padding:10px}
+.cart-panel{position:fixed;z-index:10;right:-420px;top:0;width:390px;max-width:100%;height:100vh;background:#fff;padding:20px;overflow-y:auto;box-shadow:-5px 0 20px #0002;transition:right .25s}
+.cart-panel.open{right:0}.cart-head{display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--border);padding-bottom:14px}
+.close{border:0;background:none;font-size:26px}.cart-item{display:grid;grid-template-columns:70px 1fr auto;gap:10px;align-items:center;padding:14px 0;border-bottom:1px solid var(--border)}
+.cart-item img{width:70px;height:70px;object-fit:contain;background:#f4f5f7}.cart-item h4{font-size:14px;margin-bottom:6px}
+.qty{display:flex;align-items:center;gap:12px;margin-top:8px}.qty button{padding:3px 8px}.remove{border:0;background:none;color:var(--pink)}
+.summary{margin-top:18px}.summary div{display:flex;justify-content:space-between;margin:12px 0}
+.total{border-top:1px solid var(--border);padding-top:15px;font-size:20px;font-weight:bold;color:var(--pink)}
+.checkout{width:100%;border-radius:5px;margin-top:10px}
+.overlay{display:none;position:fixed;inset:0;background:#0007;z-index:9}.overlay.show{display:block}
+footer{background:#202d4a;color:#fff;text-align:center;padding:20px;margin-top:25px}
+@media(max-width:1000px){.products{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media(max-width:700px){.layout{grid-template-columns:1fr}.products{grid-template-columns:repeat(2,minmax(0,1fr))}nav{order:3;width:100%;justify-content:center}.hero-art{font-size:85px}}
+@media(max-width:430px){.hero-art{display:none}.hero{padding:30px}.products{gap:9px}.product{padding:9px}.product img{height:120px}}
+</style>
+</head>
+<body>
+<header>
+  <div class="logo">Shop<span>Easy</span></div>
+  <nav><a href="#">Home</a><a href="#shop">Shop</a><a href="#about">About</a><a href="#contact">Contact</a></nav>
+  <form class="search" id="searchForm"><input id="search" type="search" placeholder="Search products..." aria-label="Search products"><button type="submit">🔍</button></form>
+  <button class="cart-btn" onclick="openCart()">🛒 Cart (<span id="cartCount">0</span>)</button>
+</header>
+<section class="hero">
+  <div><p>NEW COLLECTION</p><h1>Trendy Products<br>at Best Prices</h1><p>Shop your favourite products online<br>and get amazing deals.</p><button class="btn" onclick="document.getElementById('shop').scrollIntoView({behavior:'smooth'})">Shop Now →</button></div>
+  <div class="hero-art" aria-hidden="true">🛍️</div>
+</section>
+<main class="layout">
+  <aside class="sidebar"><h3>Categories</h3><div id="categories">
+    <button class="category active" data-cat="All">All Products</button>
+    <button class="category" data-cat="Clothing">Clothing</button>
+    <button class="category" data-cat="Electronics">Electronics</button>
+    <button class="category" data-cat="Footwear">Footwear</button>
+    <button class="category" data-cat="Bags">Bags</button>
+    <button class="category" data-cat="Home">Home &amp; Living</button>
+    <button class="category" data-cat="Sports">Sports</button>
+  </div></aside>
+  <section id="shop"><h2>Featured Products</h2><div class="products" id="productGrid"></div></section>
+</main>
+<div class="overlay" id="overlay" onclick="closeCart()"></div>
+<aside class="cart-panel" id="cartPanel" aria-label="Shopping cart">
+  <div class="cart-head"><h2>Your Cart (<span id="cartHeading">0</span>)</h2><button class="close" onclick="closeCart()" aria-label="Close cart">×</button></div>
+  <div id="cartItems"></div>
+  <div class="summary"><div><span>Subtotal</span><strong id="subtotal">₹ 0</strong></div><div><span>Shipping</span><strong id="shipping">₹ 0</strong></div><div class="total"><span>Total</span><strong id="total">₹ 0</strong></div><button class="btn checkout" onclick="checkout()">Proceed to Checkout</button></div>
+</aside>
+<footer id="contact"><div id="about">Free Shipping | Secure Shopping | 24/7 Support</div><p>© 2026 ShopEasy. All rights reserved.</p></footer>
+<script>
+const products=[
+{id:1,name:"Running Shoes",cat:"Footwear",price:1999,emoji:"👟",rating:4.5},
+{id:2,name:"Headphones",cat:"Electronics",price:2499,emoji:"🎧",rating:4.3},
+{id:3,name:"Smart Watch",cat:"Electronics",price:3499,emoji:"⌚",rating:4.6},
+{id:4,name:"Backpack",cat:"Bags",price:1299,emoji:"🎒",rating:4.4},
+{id:5,name:"Women Dress",cat:"Clothing",price:1499,emoji:"👗",rating:4.2},
+{id:6,name:"Smartphone",cat:"Electronics",price:12999,emoji:"📱",rating:4.7},
+{id:7,name:"Coffee Mug",cat:"Home",price:399,emoji:"☕",rating:4.1},
+{id:8,name:"Casual Shoes",cat:"Footwear",price:1799,emoji:"👟",rating:4.5},
+{id:9,name:"Sports Ball",cat:"Sports",price:799,emoji:"⚽",rating:4.4},
+{id:10,name:"Travel Bag",cat:"Bags",price:1899,emoji:"👜",rating:4.3},
+{id:11,name:"T-shirt",cat:"Clothing",price:599,emoji:"👕",rating:4.2},
+{id:12,name:"Table Lamp",cat:"Home",price:999,emoji:"💡",rating:4.6}
+];
+let category="All",searchText="",cart=[];
+const money=n=>"₹ "+n.toLocaleString("en-IN");
+function renderProducts(){
+ const list=products.filter(p=>(category==="All"||p.cat===category)&&(p.name.toLowerCase().includes(searchText)||p.cat.toLowerCase().includes(searchText)));
+ document.getElementById("productGrid").innerHTML=list.length?list.map(p=>`
+ <article class="product">
+ <img src="https://placehold.co/300x220/f1f3f5/172b55?text=${encodeURIComponent(p.emoji)}" alt="${p.name}">
+ <h3>${p.name}</h3><div class="price">${money(p.price)}</div>
+ <div class="rating">★ ${p.rating} / 5</div>
+ <button class="add" onclick="addToCart(${p.id})">Add to Cart</button></article>`).join(""):"<p>No products found.</p>";
+}
+function addToCart(id){const item=cart.find(i=>i.id===id);if(item)item.qty++;else cart.push({id,qty:1});renderCart()}
+function changeQty(id,n){const item=cart.find(i=>i.id===id);if(!item)return;item.qty+=n;if(item.qty<=0)cart=cart.filter(i=>i.id!==id);renderCart()}
+function removeItem(id){cart=cart.filter(i=>i.id!==id);renderCart()}
+function renderCart(){
+ const count=cart.reduce((s,i)=>s+i.qty,0);
+ const subtotal=cart.reduce((s,i)=>s+products.find(p=>p.id===i.id).price*i.qty,0);
+ const shipping=subtotal===0||subtotal>=999?0:99;
+ document.getElementById("cartCount").textContent=count;
+ document.getElementById("cartHeading").textContent=count;
+ document.getElementById("subtotal").textContent=money(subtotal);
+ document.getElementById("shipping").textContent=money(shipping);
+ document.getElementById("total").textContent=money(subtotal+shipping);
+ document.getElementById("cartItems").innerHTML=cart.length?cart.map(i=>{const p=products.find(p=>p.id===i.id);return `
+ <div class="cart-item"><img src="https://placehold.co/150x150/f1f3f5/172b55?text=${encodeURIComponent(p.emoji)}" alt="${p.name}">
+ <div><h4>${p.name}</h4><strong>${money(p.price)}</strong><div class="qty"><button onclick="changeQty(${p.id},-1)">−</button><span>${i.qty}</span><button onclick="changeQty(${p.id},1)">+</button></div></div>
+ <button class="remove" onclick="removeItem(${p.id})" aria-label="Remove ${p.name}">🗑</button></div>`}).join(""):"<p style='padding:25px 0'>Your cart is empty.</p>";
+}
+function openCart(){document.getElementById("cartPanel").classList.add("open");document.getElementById("overlay").classList.add("show")}
+function closeCart(){document.getElementById("cartPanel").classList.remove("open");document.getElementById("overlay").classList.remove("show")}
+document.getElementById("categories").addEventListener("click",e=>{const b=e.target.closest("[data-cat]");if(!b)return;category=b.dataset.cat;document.querySelectorAll(".category").forEach(x=>x.classList.toggle("active",x===b));renderProducts()});
+document.getElementById("search").addEventListener("input",e=>{searchText=e.target.value.trim().toLowerCase();renderProducts()});
+document.getElementById("searchForm").addEventListener("submit",e=>{e.preventDefault();searchText=document.getElementById("search").value.trim().toLowerCase();renderProducts()});
+function checkout(){if(!cart.length){alert("Your cart is empty!");return}alert("Demo checkout. Connect a backend and payment gateway for real orders.")}
+renderProducts();renderCart();
+</script>
+</body>
+</html>
